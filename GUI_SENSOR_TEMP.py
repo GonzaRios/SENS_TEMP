@@ -11,6 +11,7 @@ import time
 from tkinter import ttk 
 from numpy import array , arange
 import logging
+import logging.handlers
 
 class SENSOR(tk.Frame):
     def __init__(self, parent, *args, **kwargs):                 
@@ -104,7 +105,7 @@ class SENSOR(tk.Frame):
                     self.label2.config(font=("Verdana",30) ,text= self.X, foreground="yellow", 
                                                     borderwidth=4, anchor="e", bg="#AAAAAA")
                 self.lista_gl.append(x)
-  
+                
         except:
             messagebox.showinfo(message="Problemas con la VPN, por favor espere.", title="Error")         # MENSAJE DE ERROR CUANDO SE CORTA LA VPN.
             
@@ -112,16 +113,20 @@ class SENSOR(tk.Frame):
             after_id = self.after(10000, self.consult_sensor)                                              # CADA 10 SEGUNDOS (la función los expresa como mili s.) EL MÉTODO AFTER LLAMA A LA FUNCIÓN consult_sensor. LO QUE HACE ESTE MÉTODO ES ITERAR CADA X SEGUNDOS LA FUNCIÓN INGRESADA.                                                                                                    
         
         path = 'C:/Users/gonzalo.rios/Documents/SENSOR_TEMP/ClientTempAgent_hostFijo.txt'
-        with open(path, 'r+') as archivo:
-            logging.basicConfig(handlers=[logging.FileHandler(filename=path, encoding='utf-8',mode='a+')],
-                                        format = " %(asctime)s %(name)s:%(levelname)s:%(message)s ",
-                                        datefmt = " %d-%m-%Y %H:%M:%S %p",
-                                        level = logging.DEBUG )
         try:
-             logging.info('Temperatura: ' + self.X)
+            with open(path, 'r+') as archivo:
+                p_objeto = logging.handlers.RotatingFileHandler(path,mode='', maxBytes=100000, backupCount=5, encoding=None,delay=True, errors=None )
+                logging.basicConfig(handlers=[p_objeto],
+                                            format = " %(asctime)s %(name)s:%(levelname)s:%(message)s ",
+                                            datefmt = " %d-%m-%Y %H:%M:%S %p",
+                                            level = logging.DEBUG )
+        finally:
+            pass
+        try:
+            logging.info('Temperatura: ' + self.X)
         except:
             logging.warning('Perdida señal sensor')
-        return self.lista_gl     
+        return self.lista_gl       
 
     def start(self):
         ''' FUNCIÓN QUE LLAMA A INICIAR A LA FUNCIÓN consult_sensor'''
